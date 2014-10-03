@@ -534,9 +534,9 @@ L2034       equ $2034
 L2037       equ $2037
 L203E       equ $203E
 L2041       equ $2041
-L20CD       equ $20CD
-L20CE       equ $20CE
-L20DD       equ $20DD
+;L20CD       equ $20CD
+;L20CE       equ $20CE
+;L20DD       equ $20DD
 L2166       equ $2166
 L3000       equ $3000
 L8000       equ $8000
@@ -588,13 +588,13 @@ L202F       lda LE200,X            ; BD 00 E2
             inx                    ; E8
             cpx #$48               ; E0 48
             bne L202F              ; D0 D9
-            lda #$D8               ; A9 D8
+            lda <dli               ; A9 D8
             sta VDSLST             ; 8D 00 02
-            ldx #$20               ; A2 20
+            ldx >dli               ; A2 20
             stx VDSLST+1           ; 8E 01 02
-            ldy #$E6               ; A0 E6
-            lda #$06               ; A9 06
-            jsr SETVBV             ; 20 5C E4
+            ;ldy <vbi               ; A0 E6
+            ;lda #$06               ; A9 06
+            ;jsr SETVBV             ; 20 5C E4
 L2067       lda #$00               ; A9 00
             sta L20CD              ; 8D CD 20
             lda L20F9              ; AD F9 20
@@ -613,7 +613,7 @@ L2067       lda #$00               ; A9 00
             sta L00CC              ; 85 CC
             ldx #$C0               ; A2 C0
             stx NMIEN              ; 8E 0E D4
-L208E       lda #$DF               ; A9 DF
+L208E       lda #$5F               ; A9 DF
             jsr L20CC              ; 20 CC 20
             lda #$00               ; A9 00
             jsr L20CC              ; 20 CC 20
@@ -633,35 +633,47 @@ L208E       lda #$DF               ; A9 DF
             bne L208E              ; D0 DA
             lda #$41               ; A9 41
             jsr L20CC              ; 20 CC 20
-            lda #$F4               ; A9 F4
+            lda <dlist               ; A9 F4
             sta SDLSTL             ; 8D 30 02
             jsr L20CC              ; 20 CC 20
-            lda #$20               ; A9 20
+            lda >dlist               ; A9 20
             sta SDLSTH             ; 8D 31 02
             jsr L20CC              ; 20 CC 20
             jmp L2067              ; 4C 67 20
+L20CD equ *+1
+L20CE equ *+2
 L20CC       sta L3000              ; 8D 00 30
             inc L20CD              ; EE CD 20
             bne L20D7              ; D0 03
             inc L20CE              ; EE CE 20
 L20D7       rts                    ; 60
+dli
             pha                    ; 48
+            txa:pha
+            ldx #191
+loop
             inc L20DD              ; EE DD 20
+L20DD equ *+1
             lda L0600              ; AD 00 06
+            sta WSYNC
             and #$07               ; 29 07
             sta HSCROL             ; 8D 04 D4
-            pla                    ; 68
-            rti                    ; 40
-            pha                    ; 48
+            dex
+            bne loop
+            ;pla                    ; 68
+            ;rti                    ; 40
+vbi
+            ;pha                    ; 48
             lda L00CD              ; A5 CD
             sta L20DD              ; 8D DD 20
             inc L00CD              ; E6 CD
             inc L00CD              ; E6 CD
+            pla:tax
             pla                    ; 68
-            jmp SYSVBV             ; 4C 5F E4
-            bvs L2166              ; 70 70
-            bvs L20F9              ; 70 01
-            dta $00
+            rti
+            ;jmp SYSVBV             ; 4C 5F E4
+dlist
+            dta $70,$70,$70,$81,$00
 L20F9       dta $30
 ;
          end
